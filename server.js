@@ -1,35 +1,39 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var cors = require("cors");
+const cors = require("cors");
 const multer = require("multer");
 const app = express();
-
 const port = 8080;
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-
-
-
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "Images");
   },
-  filename: (req, file, callback) => {
-    callback(null, file.fieldname + '-' + Date.now() + '.jpg');
-  }
+});
+const { uploadFile, getFileStream } = require("./s3");
+const upload = multer({ storage: storage });
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors());
+
+app.get("/images/:key", (req, res) => {
+  const key = req.params.key;
+  const readStream = getFileStream(key);
+  readStream.pipe(res);
 });
 
-const upload = multer({storage:storage})
-
-app.post("/image", upload.single("img"), (req, res) => {
-  res.json({
-    message: "Image uploaded successfully.",
-  });
+app.post("/image", upload.single("img"), async (req, res) => {
+  const file = req.file;
+  const result = await uploadFile(req.file);
+  await unlinkFile(file.path);
+  if (result.key) {
+    res.send({ imagePath: `/images/${result.key}` });
+  } else {
+    res.status(500);
+  }
 });
 
 app.post("/test", (req, res) => {
