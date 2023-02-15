@@ -14,19 +14,15 @@ const s3 = new S3({
 });
 
 //upload a file to s3
-
 function uploadFile(file) {
   const fileStream = fs.createReadStream(file.path);
-
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
     Key: file.filename,
   };
-
   return s3.upload(uploadParams).promise();
 }
-
 exports.uploadFile = uploadFile;
 
 // downloads a file from s3
@@ -35,8 +31,22 @@ function getFileStream(fileKey) {
     Key: fileKey,
     Bucket: bucketName,
   };
-
   return s3.getObject(downloadParams).createReadStream();
 }
-
 exports.getFileStream = getFileStream;
+
+function deleteFile(fileKey) {
+  const deletePrams = {
+    Key: fileKey,
+    Bucket: bucketName,
+  };
+
+  return s3.deleteObject(deletePrams, (err, data) => {
+    if (err) {
+      throw err;
+    } else {
+      return true;
+    }
+  });
+}
+exports.deleteFile = deleteFile;
