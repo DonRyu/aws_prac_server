@@ -5,7 +5,7 @@ const multer = require("multer");
 const { uploadFile, getFileStream, deleteFile } = require("./s3");
 const { getConnect } = require("./database");
 const app = express();
-const port = 3000;
+const port = 8080;
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "Images");
