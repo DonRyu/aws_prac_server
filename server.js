@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
-const { uploadFile, getFileStream,deleteFile } = require("./s3");
+const { uploadFile, getFileStream, deleteFile } = require("./s3");
 const { getConnect } = require("./database");
 const app = express();
 const port = 8080;
@@ -20,13 +20,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-app.get("/images/:key", (req, res) => {
+app.get("/api/images/:key", (req, res) => {
   const key = req.params.key;
   const readStream = getFileStream(key);
   readStream.pipe(res);
 });
 
-app.post("/setImage", upload.single("img"), async (req, res) => {
+app.post("/api/setImage", upload.single("img"), async (req, res) => {
   const file = req.file;
   const result = await uploadFile(req.file);
   await unlinkFile(file.path);
@@ -47,7 +47,7 @@ app.post("/setImage", upload.single("img"), async (req, res) => {
   }
 });
 
-app.post("/getImages", async (req, res) => {
+app.post("/api/getImages", async (req, res) => {
   await getConnect((conn) => {
     conn.query("select * from img_table", (err, results) => {
       let = images = results.map((item) => {
@@ -59,7 +59,7 @@ app.post("/getImages", async (req, res) => {
   });
 });
 
-app.post("/deleteImage", async (req, res) => {
+app.post("/api/deleteImage", async (req, res) => {
   const isDeletedFromS3 = deleteFile(req.body.key);
   if (!isDeletedFromS3) {
     return res.send({ message: "s3 error" });
@@ -76,6 +76,10 @@ app.post("/deleteImage", async (req, res) => {
       }
     );
   });
+});
+
+app.post("/api/test", async (req, res) => {
+  res.send({ msg: "success" });
 });
 
 app.listen(port, () => {
