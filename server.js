@@ -82,7 +82,7 @@ app.post("/api/deleteImage", async (req, res) => {
   });
 });
 
-app.get("/api/test", async (req, res) => {
+app.post("/api/test", async (req, res) => {
   res.send({ msg: "success" });
 });
 
