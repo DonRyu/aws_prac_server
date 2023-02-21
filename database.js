@@ -13,7 +13,7 @@ function getConnect(callback) {
     if (!err) {
       callback(conn);
     } else {
-      console.log("error occur at getConnect ");
+      console.log("RDS CONNECT ERROR =====>",err);
     }
   });
 }

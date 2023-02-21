@@ -36,7 +36,7 @@ app.post("/api/setImage", upload.single("img"), async (req, res) => {
         `insert into img_table (ImgKey) values ('${result.key}')`,
         (err) => {
           if (err) {
-            console.log("=====connect", err);
+            return console.log("RDS set error===>", err);
           } else [res.send({ message: "success" })];
         }
       );
@@ -50,6 +50,10 @@ app.post("/api/setImage", upload.single("img"), async (req, res) => {
 app.post("/api/getImages", async (req, res) => {
   await getConnect((conn) => {
     conn.query("select * from img_table", (err, results) => {
+      if (err) {
+        return console.log("RDS delete error===>", err);
+      }
+
       let = images = results.map((item) => {
         return item.ImgKey;
       });
@@ -69,7 +73,7 @@ app.post("/api/deleteImage", async (req, res) => {
       `delete from img_table where ImgKey ='${req.body.key}'`,
       (err, results) => {
         if (err) {
-          console.log("=====>connect", err);
+          console.log("RDS delete error===>", err);
         } else {
           res.send({ message: "delete success" });
         }
