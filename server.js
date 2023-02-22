@@ -83,7 +83,19 @@ app.post("/api/deleteImage", async (req, res) => {
 });
 
 app.post("/api/test", async (req, res) => {
-  res.send({ msg: "success" });
+  await getConnect((conn) => {
+    conn.query("select * from img_table", (err, results) => {
+      if (err) {
+        return console.log("RDS delete error===>", err);
+      }
+
+      let = images = results.map((item) => {
+        return item.ImgKey;
+      });
+      res.send(images);
+    });
+    conn.release();
+  });
 });
 
 app.listen(port, () => {
