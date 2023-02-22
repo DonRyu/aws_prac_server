@@ -83,17 +83,6 @@ app.post("/api/deleteImage", async (req, res) => {
 });
 
 app.post("/api/test", async (req, res) => {
-  await getConnect((conn) => {
-    conn.query(
-      `insert into img_table (ImgKey) values ('testest')`,
-      (err) => {
-        if (err) {
-          return console.log("RDS set error===>", err);
-        } else [res.send({ message: "success" })];
-      }
-    );
-    conn.release();
-  });
   res.send({ msg: "success" });
 });
 
