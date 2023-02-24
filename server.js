@@ -20,40 +20,41 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
-app.get("/api/images/:key", (req, res) => {
+app.get("/api/images/:key", async (req, res) => {
   const key = req.params.key;
-  const readStream = getFileStream(key);
-  readStream.pipe(res);
+  try {
+    const readStream = getFileStream(key);
+    readStream.pipe(res);
+  } catch {
+    console.log("err=======>");
+  }
 });
 
 app.post("/api/setImage", upload.single("img"), async (req, res) => {
   const file = req.file;
   const result = await uploadFile(req.file);
   await unlinkFile(file.path);
-  if (result.key) {
-    await getConnect((conn) => {
-      conn.query(
-        `insert into img_table (ImgKey) values ('${result.key}')`,
-        (err) => {
-          if (err) {
-            return console.log("RDS set error===>", err);
-          } else [res.send({ message: "success" })];
+  getConnect().then((conn) => {
+    conn.query(
+      `insert into img_table (ImgKey) values ('${result.key}')`,
+      (err) => {
+        if (err) {
+          return console.log("RDS set error===>", err);
+        } else {
+          res.send({ message: "success" });
         }
-      );
-      conn.release();
-    });
-  } else {
-    res.status(500);
-  }
+      }
+    );
+    conn.release();
+  });
 });
 
 app.post("/api/getImages", async (req, res) => {
-  await getConnect((conn) => {
+  getConnect().then((conn) => {
     conn.query("select * from img_table", (err, results) => {
       if (err) {
         return console.log("RDS delete error===>", err);
       }
-
       let = images = results.map((item) => {
         return item.ImgKey;
       });
@@ -64,39 +65,25 @@ app.post("/api/getImages", async (req, res) => {
 });
 
 app.post("/api/deleteImage", async (req, res) => {
-  const isDeletedFromS3 = deleteFile(req.body.key);
-  if (!isDeletedFromS3) {
-    return res.send({ message: "s3 error" });
-  }
-  await getConnect((conn) => {
-    conn.query(
-      `delete from img_table where ImgKey ='${req.body.key}'`,
-      (err, results) => {
-        if (err) {
-          console.log("RDS delete error===>", err);
-        } else {
-          res.send({ message: "delete success" });
+  let isDeletedAtS3 = await deleteFile(req.body.key);
+  console.log("isDeletedAtS3", isDeletedAtS3);
+  
+  if (isDeletedAtS3) {
+    getConnect().then((conn) => {
+      conn.query(
+        `delete from img_table where ImgKey ='${req.body.key}'`,
+        (err, results) => {
+          if (err) {
+            console.log("RDS delete error===>", err);
+          }
+          res.send("");
         }
-      }
-    );
-  });
-});
-
-app.post("/api/test", async (req, res) => {
-  await getConnect((conn) => {
-    conn.query("select * from img_table", (err, results) => {
-      if (err) {
-        return console.log("RDS delete error===>", err);
-      }
-
-      let = images = results.map((item) => {
-        return item.ImgKey;
-      });
-      res.send(images);
+      );
     });
-    conn.release();
-  });
+  }
 });
+
+app.post("/api/test", async (req, res) => {});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}.`);

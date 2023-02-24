@@ -41,12 +41,14 @@ function deleteFile(fileKey) {
     Bucket: bucketName,
   };
 
-  return s3.deleteObject(deletePrams, (err, data) => {
-    if (err) {
-      throw err;
-    } else {
-      return true;
-    }
+  return new Promise((resolve, reject) => {
+    s3.deleteObject(deletePrams, (err) => {
+      if (err) {
+        console.log("delete err", err);
+        reject(err);
+      }
+      resolve(true);
+    });
   });
 }
 exports.deleteFile = deleteFile;

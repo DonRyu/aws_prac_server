@@ -8,13 +8,15 @@ let pool = mysql.createPool({
   database: process.env.DB_NAME,
 });
 
-function getConnect(callback) {
-  pool.getConnection((err, conn) => {
-    if (!err) {
-      callback(conn);
-    } else {
-      console.log("RDS CONNECT ERROR =====>",err);
-    }
+function getConnect() {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, conn) => {
+      if(err){
+        console.log('conn error',err)
+        return reject(err)
+      }
+      resolve(conn)
+    });
   });
 }
 
