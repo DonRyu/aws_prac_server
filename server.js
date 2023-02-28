@@ -83,7 +83,11 @@ app.post("/api/deleteImage", async (req, res) => {
   }
 });
 
-app.post("/api/test", async (req, res) => {});
+
+app.get("/test", async (req, res) => {
+res.send('해병짜장')
+
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}.`);
