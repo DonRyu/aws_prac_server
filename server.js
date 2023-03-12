@@ -18,9 +18,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const {
   login,
-  accessToken,
-  refreshToken,
-  isLogin,
+  isLogined,
   logout,
 } = require("./controller");
 
@@ -37,9 +35,7 @@ app.use(cookieParser());
 
 
 app.post("/api/login",login);
-app.get("/api/accesstoken",accessToken);
-app.get("/api/refreshtoken",refreshToken);
-app.get("/api/isLogin",isLogin);
+app.post("/api/isLogined",isLogined);
 app.post("/api/logout",logout);
 
 app.get("/api/images/:key", async (req, res) => {

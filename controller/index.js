@@ -13,16 +13,16 @@ const login = (req, res) => {
         );
       });
       if (validInfo) {
-        setCookie(validInfo,res);
+        setCookie(validInfo, res);
       } else {
-        res.status(500).json({ message: "User information is wrong" });
+        res.json({ error: "Please type correct information" });
       }
     });
     conn.release();
   });
 };
 
-const setCookie = (validInfo,res) => {
+const setCookie = (validInfo, res) => {
   try {
     const accessToken = jwt.sign(
       {
@@ -41,8 +41,12 @@ const setCookie = (validInfo,res) => {
       secure: false, // http만 사용
       httpOnly: false, // js 에서 cookie 접근 불가
     });
+    res.cookie("nickname", validInfo.nickname, {
+      secure: false, // http만 사용
+      httpOnly: false, // js 에서 cookie 접근 불가
+    });
 
-    res.status(200).json("login success");
+    res.status(200).send( "login success");
   } catch (error) {
     res.status(500).json(error);
   }
@@ -56,23 +60,20 @@ const accessToken = (req, res) => {
 
 const refreshToken = (req, res) => {};
 
-const isLogin = () => {
+const isLogined = (req, res) => {
   try {
     const token = req.cookies.accessToken;
-    const data = jwt.verify(token, process.env.ACCESS_SECRET);
-
-    console.log("data", data);
-
-    res.state(200).json(userData);
+    const userData = jwt.verify(token, process.env.ACCESS_SECRET);
+    res.send(true);
   } catch (error) {
-    res.state(500).json(error);
+    res.send(false);
   }
 };
 
 const logout = () => {
   try {
     req.cookie("accessToken", "");
-    res.status(200).json("Logout Success");
+    res.status(200).json("logout success");
   } catch (error) {
     res.status(500).json(error);
   }
@@ -82,7 +83,7 @@ module.exports = {
   login,
   accessToken,
   refreshToken,
-  isLogin,
+  isLogined,
   logout,
 };
 
