@@ -3,13 +3,12 @@ require("dotenv").config();
 const { getConnect } = require("../database");
 
 const login = (req, res) => {
-  let userInfo = req.body;
   let validInfo = {};
   getConnect().then((conn) => {
     conn.query("SELECT * FROM USER", (err, records) => {
       validInfo = records.find((item) => {
         return (
-          item.email === req.body.email && item.password === req.body.password
+          item.user_id === req.body.user_id && item.password === req.body.password
         );
       });
       if (validInfo) {
@@ -26,9 +25,7 @@ const setCookie = (validInfo, res) => {
   try {
     const accessToken = jwt.sign(
       {
-        id: validInfo.id,
-        username: validInfo.username,
-        email: validInfo.email,
+        user_id: validInfo.user_id
       },
       process.env.ACCESS_SECRET,
       {
@@ -46,7 +43,7 @@ const setCookie = (validInfo, res) => {
       httpOnly: false, // js 에서 cookie 접근 불가
     });
 
-    res.status(200).send( "login success");
+    res.status(200).send("login success");
   } catch (error) {
     res.status(500).json(error);
   }
@@ -73,6 +70,7 @@ const isLogined = (req, res) => {
 const logout = () => {
   try {
     req.cookie("accessToken", "");
+    req.cookie("nickname", "");
     res.status(200).json("logout success");
   } catch (error) {
     res.status(500).json(error);

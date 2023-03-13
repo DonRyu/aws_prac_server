@@ -21,6 +21,10 @@ const {
   isLogined,
   logout,
 } = require("./controller");
+const {
+ setRate,
+ getRate
+} = require("./controller/rate");
 
 app.use(cors({
     origin: ['http://localhost:3000'], // 출처 허용 옵션
@@ -30,13 +34,16 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(cookieParser());
 
-
+//Auth
 app.post("/api/login",login);
 app.post("/api/isLogined",isLogined);
 app.post("/api/logout",logout);
+
+//Movie Rate
+app.post("/api/setRate",setRate);
+
 
 app.get("/api/images/:key", async (req, res) => {
   const key = req.params.key;
