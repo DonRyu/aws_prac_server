@@ -43,7 +43,7 @@ app.post("/api/logout",logout);
 
 //Movie Rate
 app.post("/api/setRate",setRate);
-
+app.post("/api/getRate",getRate);
 
 app.get("/api/images/:key", async (req, res) => {
   const key = req.params.key;

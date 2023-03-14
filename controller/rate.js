@@ -6,9 +6,6 @@ const setRate = (req, res) => {
   try {
     const token = req.cookies.accessToken;
     const userData = jwt.verify(token, process.env.ACCESS_SECRET);
-    console.log("req", req.body);
-    console.log("userData", userData);
-
     getConnect().then((conn) => {
       conn.query(
         `INSERT INTO REVIEW (user_id,movie_id,rating) VALUES ('${userData.user_id}',${req.body.movie_id},${req.body.rate})
@@ -28,7 +25,28 @@ const setRate = (req, res) => {
   }
 };
 
-const getRate = (req, res) => {};
+const getRate = (req, res) => {
+  try {
+    const token = req.cookies.accessToken;
+    const userData = jwt.verify(token, process.env.ACCESS_SECRET);
+
+    getConnect().then((conn) => {
+      conn.query(
+        `SELECT movie_id,rating FROM REVIEW WHERE user_id = '${userData.user_id}'`,
+        (err, records) => {
+          if (records) {
+            res.send({ msg: "getRate", records });
+          }
+        }
+      );
+      conn.release();
+    });
+  } catch (error) {
+    req.cookie("accessToken", "");
+    req.cookie("nickname", "");
+    res.send(false);
+  }
+};
 
 module.exports = {
   setRate,
