@@ -77,6 +77,12 @@ const logout = () => {
   }
 };
 
+
+const signUp = (req,res)=>{
+  
+
+}
+
 module.exports = {
   login,
   accessToken,
