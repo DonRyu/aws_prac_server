@@ -1,8 +1,10 @@
+const express = require("express");
+const router = express.Router();
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { getConnect } = require("../database");
+const { getConnect } = require("../models/database");
 
-const login = (req, res) => {
+router.post("/login", (req, res) => {
   let validInfo = {};
   getConnect().then((conn) => {
     conn.query("SELECT * FROM USER", (err, records) => {
@@ -20,7 +22,7 @@ const login = (req, res) => {
     });
     conn.release();
   });
-};
+});
 
 const setCookie = (validInfo, res) => {
   try {
@@ -50,15 +52,7 @@ const setCookie = (validInfo, res) => {
   }
 };
 
-const accessToken = (req, res) => {
-  try {
-    const token = req.cookies.accessToken;
-  } catch (e) {}
-};
-
-const refreshToken = (req, res) => {};
-
-const isLogined = (req, res) => {
+router.post("/isLogined", (req, res) => {
   try {
     const token = req.cookies.accessToken;
     const userData = jwt.verify(token, process.env.ACCESS_SECRET);
@@ -66,21 +60,19 @@ const isLogined = (req, res) => {
   } catch (error) {
     res.send(false);
   }
-};
+});
 
-const logout = () => {
-  try {
-    req.cookie("accessToken", "");
-    req.cookie("nickname", "");
-    res.status(200).json("logout success");
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
+router.post("/logout", (req, res) => {
+  // try {
+  //   req.cookie("accessToken", "");
+  //   req.cookie("nickname", "");
+  //   res.status(200).json("logout success");
+  // } catch (error) {
+  //   res.status(500).json(error);
+  // }
+});
 
-const signUp = (req, res) => {
-
-
+router.post("/signUp", (req, res) => {
   getConnect().then((conn) => {
     conn.query(`SELECT user_id FROM USER`, (err, records) => {
       let isID = records.find((item) => {
@@ -90,39 +82,6 @@ const signUp = (req, res) => {
     });
     conn.release();
   });
+});
 
-  // getConnect().then((conn) => {
-  //   conn.query(
-  //     `INSERT INTO USER (user_id,nickname,password) VALUES ('test1','test1','test@gmail.com')`,
-  //     (err, records) => {}
-  //   );
-  //   conn.release();
-  // });
-};
-
-module.exports = {
-  login,
-  accessToken,
-  refreshToken,
-  isLogined,
-  logout,
-  signUp,
-};
-
-// const refreshToken = jwt.sign(
-//   {
-//     id: userInfo.id,
-//     username: userInfo.username,
-//     email: userInfo.email,
-//   },
-//   process.env.ACCESS_SECRET,
-//   {
-//     expiresIn: "24h",
-//     issuer: "Don Ryu",
-//   }
-// );
-// token 전송
-// res.cookie("refreshToken", refreshToken, {
-//   secure: false,
-//   httpOnly: false,
-// });
+module.exports = router;

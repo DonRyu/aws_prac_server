@@ -1,4 +1,4 @@
-const { getConnect } = require("../database");
+const { getConnect } = require("../models/database");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 // review_id, user_id,movie_id, rating, comment

@@ -1,10 +1,11 @@
 const express = require("express");
+const router = express.Router();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const multer = require("multer");
-const { uploadFile, getFileStream, deleteFile } = require("./s3");
-const { getConnect } = require("./database");
+const { uploadFile, getFileStream, deleteFile } = require("./models/s3");
+const { getConnect } = require("./models/database");
 const app = express();
 const port = 8080;
 const storage = multer.diskStorage({
@@ -16,15 +17,13 @@ const upload = multer({ storage: storage });
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const {
-  login,
-  isLogined,
-  logout,
-} = require("./controller");
+
 const {
  setRate,
  getRate
 } = require("./controller/rate");
+const auth = require('./routes/auth')
+
 
 app.use(cors({
     origin: ['http://localhost:3000'], // 출처 허용 옵션
@@ -36,10 +35,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-//Auth
-app.post("/api/login",login);
-app.post("/api/isLogined",isLogined);
-app.post("/api/logout",logout);
+app.use('/',auth)
+
 
 //Movie Rate
 app.post("/api/setRate",setRate);
