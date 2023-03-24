@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -18,11 +17,9 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 
-const {
- setRate,
- getRate
-} = require("./controller/rate");
-const auth = require('./routes/auth')
+const auth = require('./routes/auth');
+const rate = require('./routes/rate');
+const test = require('./routes/test');
 
 
 app.use(cors({
@@ -35,12 +32,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/',auth)
+app.use('/auth',auth)
+app.use('/rate',rate)
+app.use('/test',test)
 
-
-//Movie Rate
-app.post("/api/setRate",setRate);
-app.post("/api/getRate",getRate);
 
 app.get("/api/images/:key", async (req, res) => {
   const key = req.params.key;
@@ -104,11 +99,6 @@ app.post("/api/deleteImage", async (req, res) => {
     });
   }
 });
-
-app.get("/test", async (req, res) => {
-  res.send("해병짜장");
-});
-
 
 
 app.listen(port, () => {
