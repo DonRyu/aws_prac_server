@@ -7,6 +7,8 @@ const { uploadFile, getFileStream, deleteFile } = require("./models/s3");
 const { getConnect } = require("./models/database");
 const app = express();
 const port = 8080;
+
+//storages
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "Images");
@@ -17,10 +19,10 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 
+// routes
 const auth = require('./routes/auth');
 const rate = require('./routes/rate');
 const test = require('./routes/test');
-
 
 app.use(cors({
     origin: ['http://localhost:3000'], // 출처 허용 옵션

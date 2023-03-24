@@ -73,15 +73,39 @@ router.post("/logout", (req, res) => {
 });
 
 router.post("/signUp", (req, res) => {
+  //console.log('res',req.body)
+  //INSERT INTO USER(user_id,nickname,password)VALUES('test3@gmail.com','test3','asdf1234');
+
   getConnect().then((conn) => {
-    conn.query(`SELECT user_id FROM USER`, (err, records) => {
+    conn.query(`SELECT user_id,nickname FROM USER`, (err, records) => {
       let isID = records.find((item) => {
-        item = req.body.email;
+        return item.user_id === req.body.email;
       });
-      console.log("isID", isID);
+      let isNickName = records.find((item) => {
+       return item.nickname === req.body.nickname
+      });
+
+      if (isID) {
+        res.send({ error: "Email is already used" });
+        return;
+      }
+      if (isNickName) {
+        res.send({ error: "Nickname is already used" });
+        return;
+      }
+      res.send(true)
+
     });
     conn.release();
   });
+});
+
+router.post("/verify", (req, res) => {
+  console.log("req.body", req.body);
+});
+
+router.get("/test", (req, res) => {
+  res.send("sibar");
 });
 
 module.exports = router;
